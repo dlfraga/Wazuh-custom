@@ -1,0 +1,684 @@
+<!--
+Samba audit descriptions for Wazuh 4.x.
+Generated 2026-10-14. Inventory: 104 operations in the linked current manual,
+which identifies itself as Samba 4.25.0.
+Operation inventory:
+https://www.samba.org/samba/docs/current/man-html/vfs_full_audit.8.html
+VFS reference and implementation:
+https://www.samba.org/~sharpe/The-Samba-VFS-1.4.pdf
+https://github.com/samba-team/samba/blob/master/source3/modules/vfs_full_audit.c
+https://github.com/samba-team/samba/blob/master/source3/modules/vfs_default.c
+Offload operation reference:
+https://lists.samba.org/archive/samba-technical/2017-June/121453.html
+Wazuh rule syntax:
+https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html
+
+Descriptions are concise labels written for this ruleset.
+Each label names an operation; the separate result field carries its outcome.
+For asynchronous calls, send starts the request and recv obtains its result.
+The details field retains the operation-specific remainder, including extra
+pipe-separated arguments. Source logs remain available in full_log.
+The all and none names are Samba configuration selectors and have no rules.
+
+DEPLOYMENT
+This is a complete replacement for the previously proposed
+/var/ossec/etc/rules/samba_audit_rules.xml on the Wazuh manager.
+It contains base rules 100500 and 100501 and operation rules 100510-100613.
+Rule 100510 retains the earlier fstreaminfo mapping.
+Only one copy of these IDs may be loaded. Existing unrelated rules using
+these IDs require ID reassignment, including the matching if_sid references.
+The earlier samba-audit decoder remains required, with fields:
+samba.user, srcip, samba.share, samba.operation, samba.result, samba.details.
+All rules have level 3. Alert storage requires log_alert_level at most 3
+and JSON alert output enabled. This file does not configure notifications
+or Active Response; existing global policies continue to apply.
+Unknown operation names use rule 100501. Messages without decoded operation
+fields can use rule 100500 when their program name matches smbd_audit.
+
+VALIDATION
+Static checks cover XML, operation inventory, unique rule IDs and anchored
+operation selectors. Wazuh runtime validation remains a deployment step:
+/var/ossec/bin/wazuh-logtest
+After successful validation, activation uses:
+systemctl restart wazuh-manager
+The dashboard display field is rule.description. Existing indexed alerts
+retain their original description.
+-->
+<group name="samba_audit,">
+
+  <rule id="100500" level="3">
+    <program_name type="pcre2">^smbd_audit$</program_name>
+    <description>Samba audit event.</description>
+  </rule>
+
+  <rule id="100501" level="3">
+    <if_sid>100500</if_sid>
+    <field name="samba.operation" type="pcre2">.+</field>
+    <description>Samba audit: $(samba.operation). User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100510" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fstreaminfo$</field>
+    <description>Samba: Query file data-stream information [fstreaminfo]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100511" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^aio_force$</field>
+    <description>Samba: Check whether asynchronous I/O is required [aio_force]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100512" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^brl_lock_windows$</field>
+    <description>Samba: Acquire Windows byte-range lock [brl_lock_windows]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100513" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^brl_unlock_windows$</field>
+    <description>Samba: Release Windows byte-range lock [brl_unlock_windows]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100514" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^chdir$</field>
+    <description>Samba: Change working directory [chdir]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100515" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^close$</field>
+    <description>Samba: Close file handle [close]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100516" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^closedir$</field>
+    <description>Samba: Close directory stream [closedir]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100517" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^connect$</field>
+    <description>Samba: Connect to share [connect]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100518" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^create_dfs_pathat$</field>
+    <description>Samba: Create DFS referral link [create_dfs_pathat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100519" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^create_file$</field>
+    <description>Samba: Open or create file or directory [create_file]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100520" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^disconnect$</field>
+    <description>Samba: Disconnect from share [disconnect]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100521" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^disk_free$</field>
+    <description>Samba: Query disk free space [disk_free]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100522" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^durable_cookie$</field>
+    <description>Samba: Generate durable-handle reconnect cookie [durable_cookie]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100523" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^durable_disconnect$</field>
+    <description>Samba: Preserve durable handle across disconnect [durable_disconnect]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100524" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^durable_reconnect$</field>
+    <description>Samba: Reconnect durable file handle [durable_reconnect]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100525" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fallocate$</field>
+    <description>Samba: Manage file space allocation [fallocate]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100526" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fchflags$</field>
+    <description>Samba: Set file flags through handle [fchflags]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100527" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fchmod$</field>
+    <description>Samba: Set Unix permissions through handle [fchmod]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100528" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fchown$</field>
+    <description>Samba: Set owner and group through handle [fchown]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100529" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fcntl$</field>
+    <description>Samba: Perform file-descriptor control operation [fcntl]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100530" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fdopendir$</field>
+    <description>Samba: Open directory stream through handle [fdopendir]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100531" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fget_compression$</field>
+    <description>Samba: Query file compression state [fget_compression]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100532" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fget_dos_attributes$</field>
+    <description>Samba: Read DOS file attributes through handle [fget_dos_attributes]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100533" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fget_nt_acl$</field>
+    <description>Samba: Read Windows security descriptor through handle [fget_nt_acl]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100534" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fgetxattr$</field>
+    <description>Samba: Read extended attribute through handle [fgetxattr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100535" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^file_id_create$</field>
+    <description>Samba: Construct file identifier from file metadata [file_id_create]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100536" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^filesystem_sharemode$</field>
+    <description>Samba: Apply filesystem share-mode locking [filesystem_sharemode]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100537" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^flistxattr$</field>
+    <description>Samba: List extended attributes through handle [flistxattr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100538" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fntimes$</field>
+    <description>Samba: Set file timestamps through handle [fntimes]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100539" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^freaddir_attr$</field>
+    <description>Samba: Query directory-entry attributes through handle [freaddir_attr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100540" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fremovexattr$</field>
+    <description>Samba: Remove extended attribute through handle [fremovexattr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100541" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fs_capabilities$</field>
+    <description>Samba: Query filesystem capabilities [fs_capabilities]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100542" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fs_file_id$</field>
+    <description>Samba: Obtain filesystem file identifier [fs_file_id]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100543" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fsctl$</field>
+    <description>Samba: Process filesystem control request [fsctl]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100544" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fset_dos_attributes$</field>
+    <description>Samba: Set DOS file attributes through handle [fset_dos_attributes]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100545" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fset_nt_acl$</field>
+    <description>Samba: Set Windows security descriptor through handle [fset_nt_acl]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100546" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fsetxattr$</field>
+    <description>Samba: Set extended attribute through handle [fsetxattr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100547" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fstat$</field>
+    <description>Samba: Query file metadata through handle [fstat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100548" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fstatat$</field>
+    <description>Samba: Query file metadata relative to directory handle [fstatat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100549" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fsync_recv$</field>
+    <description>Samba: Collect asynchronous file synchronization result [fsync_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100550" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^fsync_send$</field>
+    <description>Samba: Start asynchronous file synchronization [fsync_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100551" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^ftruncate$</field>
+    <description>Samba: Set file length through handle [ftruncate]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100552" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_alloc_size$</field>
+    <description>Samba: Query allocated file size [get_alloc_size]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100553" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_dfs_referrals$</field>
+    <description>Samba: Retrieve DFS referrals [get_dfs_referrals]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100554" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_dos_attributes_recv$</field>
+    <description>Samba: Collect asynchronous DOS attribute query result [get_dos_attributes_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100555" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_dos_attributes_send$</field>
+    <description>Samba: Start asynchronous DOS attribute query [get_dos_attributes_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100556" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_quota$</field>
+    <description>Samba: Query filesystem quota [get_quota]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100557" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_real_filename$</field>
+    <description>Samba: Resolve actual filename spelling [get_real_filename]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100558" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_real_filename_at$</field>
+    <description>Samba: Resolve actual filename spelling relative to directory handle [get_real_filename_at]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100559" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^get_shadow_copy_data$</field>
+    <description>Samba: Enumerate shadow-copy information [get_shadow_copy_data]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100560" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^getlock$</field>
+    <description>Samba: Query file lock information [getlock]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100561" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^getxattrat_recv$</field>
+    <description>Samba: Collect asynchronous extended attribute query result [getxattrat_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100562" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^getxattrat_send$</field>
+    <description>Samba: Start asynchronous extended attribute query relative to directory handle [getxattrat_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100563" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^is_offline$</field>
+    <description>Samba: Check offline file status [is_offline]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100564" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^lchown$</field>
+    <description>Samba: Set symbolic-link owner and group [lchown]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100565" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^linkat$</field>
+    <description>Samba: Create hard link relative to directory handles [linkat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100566" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^linux_setlease$</field>
+    <description>Samba: Set or release Linux file lease [linux_setlease]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100567" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^lock$</field>
+    <description>Samba: Apply file locking operation [lock]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100568" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^lseek$</field>
+    <description>Samba: Change file offset [lseek]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100569" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^lstat$</field>
+    <description>Samba: Query path metadata with symbolic-link information [lstat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100570" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^mkdirat$</field>
+    <description>Samba: Create directory relative to directory handle [mkdirat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100571" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^mknodat$</field>
+    <description>Samba: Create filesystem node relative to directory handle [mknodat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100572" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^ntimes$</field>
+    <description>Samba: Set file timestamps by path [ntimes]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100573" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^offload_read_recv$</field>
+    <description>Samba: Collect offloaded-read token result [offload_read_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100574" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^offload_read_send$</field>
+    <description>Samba: Start offloaded-read token request [offload_read_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100575" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^offload_write_recv$</field>
+    <description>Samba: Collect offloaded-copy write result [offload_write_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100576" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^offload_write_send$</field>
+    <description>Samba: Start offloaded-copy write request [offload_write_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100577" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^open$</field>
+    <description>Samba: Open file by path [open]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100578" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^open_share_root$</field>
+    <description>Samba: Open share root directory [open_share_root]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100579" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^openat$</field>
+    <description>Samba: Open file relative to directory handle [openat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100580" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^parent_pathname$</field>
+    <description>Samba: Resolve parent directory and final path component [parent_pathname]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100581" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pread$</field>
+    <description>Samba: Read file data at specified offset [pread]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100582" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pread_recv$</field>
+    <description>Samba: Collect asynchronous read result [pread_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100583" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pread_send$</field>
+    <description>Samba: Start asynchronous read at specified offset [pread_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100584" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pwrite$</field>
+    <description>Samba: Write file data at specified offset [pwrite]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100585" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pwrite_recv$</field>
+    <description>Samba: Collect asynchronous write result [pwrite_recv]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100586" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^pwrite_send$</field>
+    <description>Samba: Start asynchronous write at specified offset [pwrite_send]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100587" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^read$</field>
+    <description>Samba: Read file data [read]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100588" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^read_dfs_pathat$</field>
+    <description>Samba: Read DFS referral link [read_dfs_pathat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100589" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^readdir$</field>
+    <description>Samba: Read next directory entry [readdir]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100590" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^readlinkat$</field>
+    <description>Samba: Read symbolic-link target relative to directory handle [readlinkat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100591" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^realpath$</field>
+    <description>Samba: Resolve canonical filesystem path [realpath]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100592" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^recvfile$</field>
+    <description>Samba: Receive socket data into file [recvfile]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100593" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^removexattr$</field>
+    <description>Samba: Remove extended attribute by path [removexattr]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100594" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^renameat$</field>
+    <description>Samba: Rename or move filesystem entry [renameat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100595" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^rewinddir$</field>
+    <description>Samba: Reset directory stream position [rewinddir]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100596" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^sendfile$</field>
+    <description>Samba: Send file data to socket [sendfile]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100597" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^set_compression$</field>
+    <description>Samba: Set file compression state [set_compression]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100598" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^set_offline$</field>
+    <description>Samba: Set offline file status [set_offline]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100599" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^set_quota$</field>
+    <description>Samba: Set filesystem quota [set_quota]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100600" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^snap_check_path$</field>
+    <description>Samba: Check snapshot support for path [snap_check_path]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100601" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^snap_create$</field>
+    <description>Samba: Create filesystem snapshot [snap_create]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100602" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^snap_delete$</field>
+    <description>Samba: Delete filesystem snapshot [snap_delete]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100603" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^stat$</field>
+    <description>Samba: Query file metadata by path [stat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100604" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^statvfs$</field>
+    <description>Samba: Query filesystem statistics [statvfs]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100605" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^strict_lock_check$</field>
+    <description>Samba: Check byte-range locks before I/O [strict_lock_check]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100606" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^symlinkat$</field>
+    <description>Samba: Create symbolic link relative to directory handle [symlinkat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100607" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^sys_acl_blob_get_fd$</field>
+    <description>Samba: Retrieve serialized system ACL through handle [sys_acl_blob_get_fd]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100608" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^sys_acl_delete_def_fd$</field>
+    <description>Samba: Delete default directory ACL through handle [sys_acl_delete_def_fd]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100609" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^sys_acl_get_fd$</field>
+    <description>Samba: Read system ACL through handle [sys_acl_get_fd]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100610" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^sys_acl_set_fd$</field>
+    <description>Samba: Set system ACL through handle [sys_acl_set_fd]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100611" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^translate_name$</field>
+    <description>Samba: Translate filename between naming conventions [translate_name]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100612" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^unlinkat$</field>
+    <description>Samba: Remove file name or directory [unlinkat]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+  <rule id="100613" level="3">
+    <if_sid>100501</if_sid>
+    <field name="samba.operation" type="pcre2">^write$</field>
+    <description>Samba: Write file data [write]. User: $(samba.user); client: $(srcip); share: $(samba.share); result: $(samba.result); details: $(samba.details)</description>
+  </rule>
+
+</group>
