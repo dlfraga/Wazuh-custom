@@ -1,0 +1,9 @@
+<decoder name="samba-audit">
+  <program_name type="pcre2">^smbd_audit$</program_name>
+</decoder>
+
+<decoder name="samba-audit-fields">
+  <parent>samba-audit</parent>
+  <regex type="pcre2">^([^|]*)\|([^|]+)\|([^|]*)\|([^|]+)\|([^|]+)\|(.*)$</regex>
+  <order>samba.user,srcip,samba.share,samba.operation,samba.result,samba.details</order>
+</decoder>
